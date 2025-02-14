@@ -5,7 +5,8 @@ import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getToken } from "@/lib/auth";
 import Sidebar from "@/components/side-bar"; // Import Sidebar
-
+import ChatResponseCard from "@/components/chat-response-card";
+import AnnouncementCard from "@/components/announcement-card";
 interface Process {
   _id: string;
   title: string;
@@ -64,6 +65,8 @@ export default function Dashboard() {
       <div className="ml-64 p-6 flex-1">
         <h1 className="text-2xl font-bold mb-4">Process Dashboard</h1>
 
+        <ChatResponseCard/>
+        <AnnouncementCard/>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {processes.map((process) => (
             <Card key={process._id}>
