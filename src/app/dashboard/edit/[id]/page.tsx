@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useRouter, useParams } from "next/navigation";
 import axios from "axios";
 import { Button } from "@/components/ui/button";
@@ -11,11 +11,7 @@ export default function EditProcess() {
   const [title, setTitle] = useState("");
   const [steps, setSteps] = useState<string[]>([""]);
 
-  useEffect(() => {
-    fetchProcess();
-  }, []);
-
-  const fetchProcess = async () => {
+  const fetchProcess = useCallback(async () => {
     try {
       const response = await axios.get(`http://localhost:5000/api/processes/getbyid/${id}`);
       setTitle(response.data.title);
@@ -23,7 +19,11 @@ export default function EditProcess() {
     } catch (error) {
       console.error("Error fetching process:", error);
     }
-  };
+  }, [id]);
+
+  useEffect(() => {
+    fetchProcess();
+  }, [fetchProcess]);
 
   const updateProcess = async () => {
     try {
@@ -58,25 +58,25 @@ export default function EditProcess() {
       <h1 className="text-2xl font-bold mb-4">Edit Process</h1>
 
       {/* Title Input */}
-      <Input 
-        placeholder="Process Title" 
-        value={title} 
-        onChange={(e) => setTitle(e.target.value)} 
-        className="mb-2" 
+      <Input
+        placeholder="Process Title"
+        value={title}
+        onChange={(e) => setTitle(e.target.value)}
+        className="mb-2"
       />
 
       {/* Steps Input */}
       <h2 className="text-lg font-semibold mt-4">Steps</h2>
       {steps.map((step, index) => (
         <div key={index} className="flex items-center gap-2 mb-2">
-          <Input 
-            placeholder={`Step ${index + 1}`} 
-            value={step} 
+          <Input
+            placeholder={`Step ${index + 1}`}
+            value={step}
             onChange={(e) => {
               const newSteps = [...steps];
               newSteps[index] = e.target.value;
               setSteps(newSteps);
-            }} 
+            }}
           />
           <Button className="bg-red-500" onClick={() => deleteStep(index)}>-</Button>
         </div>

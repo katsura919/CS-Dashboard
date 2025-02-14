@@ -31,6 +31,7 @@ export default function AnnouncementCard() {
         console.log("Fetched Announcements:", data); // Debugging
         setAnnouncements(data);
       } catch (error) {
+        console.log(error);
         console.error("Error fetching announcements:", error);
       }
     }
@@ -45,6 +46,7 @@ export default function AnnouncementCard() {
       setAnnouncements((prev) => prev.filter((ann) => ann._id !== id));
       toast.success("Announcement deleted!");
     } catch (error) {
+      console.log(error);
       toast.error("Failed to delete announcement");
     }
   }
@@ -70,6 +72,7 @@ export default function AnnouncementCard() {
       setSelectedAnnouncement(null);
       toast.success("Announcement updated!");
     } catch (error) {
+      console.log(error);
       toast.error("Failed to update announcement");
     }
   }

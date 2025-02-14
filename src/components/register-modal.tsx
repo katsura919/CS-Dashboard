@@ -56,10 +56,12 @@ export default function RegisterModal({ isOpen, onClose, onOpenLogin }: Register
 
       onClose();
       onOpenLogin();
-    } catch (error: any) {
-      setError(error.response?.data?.error || "Registration failed. Please try again.");
-    } finally {
-      setLoading(false);
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        setError(error.response?.data?.error || "Registration failed. Please try again.");
+      } else {
+        setError("An unexpected error occurred.");
+      }
     }
   };
  

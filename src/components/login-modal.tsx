@@ -33,8 +33,12 @@ export default function LoginModal({ isOpen, onClose, onOpenRegister }: LoginMod
       saveToken(data.token);
       onClose();
       router.push("/dashboard");
-    } catch (err: any) {
-      setError(err.response?.data?.error || "Something went wrong. Please try again.");
+    } catch (err: unknown) {  // ✅ Fixed type
+      if (axios.isAxiosError(err)) {
+        setError(err.response?.data?.error || "Something went wrong. Please try again.");
+      } else {
+        setError("An unexpected error occurred.");
+      }
     } finally {
       setLoading(false);
     }
@@ -70,7 +74,7 @@ export default function LoginModal({ isOpen, onClose, onOpenRegister }: LoginMod
             {loading ? <Loader2 className="animate-spin w-5 h-5" /> : "Login"}
           </Button>
           <div className="text-center text-sm text-gray-300">
-            Don't have an account?{" "}
+            Don&apos;t have an account?{" "}
             <button 
               className="text-blue-400 hover:underline"
               onClick={onOpenRegister}
