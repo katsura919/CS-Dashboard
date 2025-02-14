@@ -1,10 +1,11 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Loader2 } from "lucide-react";
 
 export default function AnnouncementPage() {
@@ -12,26 +13,31 @@ export default function AnnouncementPage() {
   const [details, setDetails] = useState("");
   const [postedBy, setPostedBy] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const textAreaRef = useRef<HTMLTextAreaElement | null>(null);
+
+  // Auto-adjust textarea height
+  useEffect(() => {
+    if (textAreaRef.current) {
+      textAreaRef.current.style.height = "auto"; // Reset height first
+      textAreaRef.current.style.height = `${textAreaRef.current.scrollHeight}px`; // Set new height
+    }
+  }, [details]); // Runs when 'details' state changes
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError("");
+    setError(null);
 
     try {
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}/api/announcements/create`,
-        {
-          title,
-          details,
-          postedBy,
-        }
+        { title, details, postedBy }
       );
 
       if (response.status === 201) {
-        router.push("/announcements"); // Redirect to announcements list page
+        router.push("/announcements");
       }
     } catch (err) {
       setError("Failed to create announcement. Please try again.");
@@ -42,14 +48,19 @@ export default function AnnouncementPage() {
   };
 
   return (
-    <div className="max-w-lg mx-auto mt-10 p-6 bg-white shadow-md rounded-lg">
-      <h1 className="text-2xl font-semibold text-center mb-4">Create Announcement</h1>
-      <p className="text-sm text-gray-500 text-center mb-6">
-        Fill in the details below to create a new announcement.
-      </p>
+    <div className="flex flex-col max-w-xl px-4">
+      {/* Page Title */}
+      <h1 className="text-2xl font-bold mb-4">Create Announcement</h1>
 
-      {error && <p className="text-red-500 text-sm mb-3">{error}</p>}
+      {/* Error Alert */}
+      {error && (
+        <Alert variant="destructive" className="mb-4">
+          <AlertTitle>Error</AlertTitle>
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
 
+      {/* Form */}
       <form onSubmit={handleSubmit} className="space-y-4">
         <Input
           type="text"
@@ -63,6 +74,8 @@ export default function AnnouncementPage() {
           value={details}
           onChange={(e) => setDetails(e.target.value)}
           required
+          ref={textAreaRef}
+          className="resize-none overflow-hidden"
         />
         <Input
           type="text"
@@ -72,9 +85,15 @@ export default function AnnouncementPage() {
           required
         />
 
-        <Button type="submit" className="w-full bg-green-600 text-white" disabled={loading}>
-          {loading ? <Loader2 className="animate-spin w-5 h-5 mx-auto" /> : "Create Announcement"}
-        </Button>
+        {/* Action Buttons */}
+        <div className="mt-6 flex gap-3">
+          <Button type="submit" disabled={loading}>
+            {loading ? <Loader2 className="animate-spin w-5 h-5 mx-auto" /> : "Create Announcement"}
+          </Button>
+          <Button variant="outline" onClick={() => router.push("/dashboard")}>
+            Cancel
+          </Button>
+        </div>
       </form>
     </div>
   );
