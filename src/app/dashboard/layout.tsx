@@ -3,12 +3,19 @@ import { AppSidebar } from "@/components/sidebar/app-sidebar";
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator, BreadcrumbPage } from "@/components/ui/breadcrumb";
 import { usePathname } from "next/navigation";
-import {ModeToggle} from "@/components/mode-toggle"
+import { ModeToggle } from "@/components/mode-toggle";
+
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
+  // Mapping for breadcrumb names
+  const breadcrumbMap: Record<string, string> = {
+    announceprocess: "Announcements & Processes",
+  };
+
   // Extract the current page from the URL
-  const currentPage = pathname.split("/").pop(); // Gets "process" if on /dashboard/process
+  const currentPage = pathname.split("/").pop() || "";
+  const breadcrumbText = breadcrumbMap[currentPage] || currentPage;
 
   return (
     <SidebarProvider>
@@ -20,13 +27,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <Breadcrumb>
             <BreadcrumbList>
               <BreadcrumbItem>
-                <BreadcrumbLink href="/dashboard">Dashboard</BreadcrumbLink>
+                <BreadcrumbLink href="/dashboard">Home</BreadcrumbLink>
               </BreadcrumbItem>
               {currentPage && currentPage !== "dashboard" && (
                 <>
                   <BreadcrumbSeparator />
                   <BreadcrumbItem>
-                    <BreadcrumbPage className="capitalize">{currentPage}</BreadcrumbPage>
+                    <BreadcrumbPage className="capitalize">{breadcrumbText}</BreadcrumbPage>
                   </BreadcrumbItem>
                 </>
               )}
@@ -38,7 +45,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </header>
 
         {/* Page Content Below Breadcrumbs */}
-        <main className="mt-4 px-7" >{children}</main>
+        <main className="mt-4 px-7">{children}</main>
       </SidebarInset>
     </SidebarProvider>
   );

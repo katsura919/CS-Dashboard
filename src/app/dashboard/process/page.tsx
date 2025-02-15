@@ -5,10 +5,12 @@ import { useRouter } from "next/navigation";
 import axios from "axios";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 export default function CreateProcess() {
   const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
   const [steps, setSteps] = useState<string[]>([""]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -26,15 +28,19 @@ export default function CreateProcess() {
   };
 
   const saveProcess = async () => {
-    if (!title.trim() || steps.some((s) => s.trim() === "")) {
-      setError("Please provide a title and fill out all steps.");
+    if (!title.trim() || !description.trim() || steps.some((s) => s.trim() === "")) {
+      setError("Please provide a title, description, and fill out all steps.");
       return;
     }
 
     try {
       setLoading(true);
       setError(null);
-      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/processes/create`, { title, steps });
+      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/processes/create`, {
+        title,
+        description,
+        steps,
+      });
       router.push("/dashboard");
     } catch (error) {
       console.error("Error creating process:", error);
@@ -46,7 +52,7 @@ export default function CreateProcess() {
 
   return (
     <div className="flex flex-col max-w-xl px-4">
-      {/* Page Title (Top Left) */}
+      {/* Page Title */}
       <h1 className="text-2xl font-bold mb-4">Create New Process</h1>
 
       {/* Error Alert */}
@@ -62,6 +68,14 @@ export default function CreateProcess() {
         placeholder="Process Title"
         value={title}
         onChange={(e) => setTitle(e.target.value)}
+        className="mb-4"
+      />
+
+      {/* Description Input */}
+      <Textarea
+        placeholder="Process Description"
+        value={description}
+        onChange={(e) => setDescription(e.target.value)}
         className="mb-4"
       />
 

@@ -2,7 +2,8 @@
 
 import * as React from "react"
 import {
-  SquarePen ,
+  SquarePen,
+  LayoutDashboard,
 } from "lucide-react"
 
 import { NavMain } from "@/components/sidebar/nav-main"
@@ -21,7 +22,22 @@ const data = {
     email: "m@example.com",
   },
   navMain: [
-
+    {
+      title: "Dashboard",
+      url: "#",
+      icon: LayoutDashboard,
+      isActive: true,
+      items: [
+        {
+          title: "Home",
+          url: "/dashboard",
+        },
+        {
+          title: "Announcement & Processes",
+          url: "/dashboard/announceprocess",
+        },
+      ],
+    },
     {
       title: "Create",
       url: "#",
@@ -46,7 +62,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-      
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
