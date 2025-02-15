@@ -32,7 +32,7 @@ export function ProcessTable() {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 5;
-  const router = useRouter();
+
 
   useEffect(() => {
     async function fetchProcesses() {
