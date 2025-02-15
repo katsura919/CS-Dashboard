@@ -11,15 +11,14 @@ interface ResponseStats {
   badPercentage: string;
 }
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
-console.log(API_BASE_URL);
+
 export default function ChatResponseCard() {
   const [stats, setStats] = useState<ResponseStats | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    axios.get(`${API_BASE_URL}/api/analytics/chat-response-stats`)
+    axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/analytics/chat-response-stats`)
       .then((response) => {
         setStats(response.data);
         setLoading(false);

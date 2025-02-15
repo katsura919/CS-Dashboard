@@ -4,7 +4,7 @@ export async function POST(req: Request) {
   try {
     const { username, password } = await req.json();
 
-    const response = await fetch("http://localhost:5000/api/admin/login", {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username, password }),

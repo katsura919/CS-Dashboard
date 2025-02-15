@@ -14,7 +14,6 @@ interface LoginModalProps {
   onOpenRegister: () => void; // Opens the RegisterModal
 }
 
-const API_BASE_URL = "http://localhost:5000";
 
 export default function LoginModal({ isOpen, onClose, onOpenRegister }: LoginModalProps) {
   const [username, setUsername] = useState("");
@@ -28,7 +27,7 @@ export default function LoginModal({ isOpen, onClose, onOpenRegister }: LoginMod
     setLoading(true);
 
     try {
-      const { data } = await axios.post(`${API_BASE_URL}/api/admin/login`, { username, password });
+      const { data } = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/login`, { username, password });
 
       saveToken(data.token);
       onClose();

@@ -15,7 +15,6 @@ type Announcement = {
   details: string;
 };
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
 export default function AnnouncementCard() {
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
@@ -27,7 +26,7 @@ export default function AnnouncementCard() {
   useEffect(() => {
     async function fetchAnnouncements() {
       try {
-        const { data } = await axios.get(`${API_BASE_URL}/api/announcements/get`);
+        const { data } = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/announcements/get`);
         console.log("Fetched Announcements:", data); // Debugging
         setAnnouncements(data);
       } catch (error) {
@@ -42,7 +41,7 @@ export default function AnnouncementCard() {
   async function handleDelete(id: string) {
     if (!confirm("Are you sure you want to delete this announcement?")) return;
     try {
-      await axios.delete(`${API_BASE_URL}/api/announcements/delete/${id}`);
+      await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/api/announcements/delete/${id}`);
       setAnnouncements((prev) => prev.filter((ann) => ann._id !== id));
       toast.success("Announcement deleted!");
     } catch (error) {
@@ -63,7 +62,7 @@ export default function AnnouncementCard() {
     if (!selectedAnnouncement) return;
     try {
       const { data: updated } = await axios.put(
-        `${API_BASE_URL}/api/announcements/update/${selectedAnnouncement._id}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/api/announcements/update/${selectedAnnouncement._id}`,
         { title, details: content }
       );
       setAnnouncements((prev) =>

@@ -46,7 +46,7 @@ export default function RegisterModal({ isOpen, onClose, onOpenLogin }: Register
 
     setLoading(true);
     try {
-      await axios.post(`${API_BASE_URL}/api/admin/register`, {
+      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/register`, {
         firstName,
         lastName,
         username,

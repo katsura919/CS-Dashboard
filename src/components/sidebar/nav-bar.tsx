@@ -1,8 +1,8 @@
 "use client";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import LoginModal from "./login-modal";
-import RegisterModal from "./register-modal";
+import LoginModal from "../login-modal";
+import RegisterModal from "../register-modal";
 
 export default function Navbar() {
   const [isLoginOpen, setIsLoginOpen] = useState(false);

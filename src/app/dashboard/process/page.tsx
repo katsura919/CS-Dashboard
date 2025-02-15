@@ -34,7 +34,7 @@ export default function CreateProcess() {
     try {
       setLoading(true);
       setError(null);
-      await axios.post("http://localhost:5000/api/processes/create", { title, steps });
+      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/processes/create`, { title, steps });
       router.push("/dashboard");
     } catch (error) {
       console.error("Error creating process:", error);
