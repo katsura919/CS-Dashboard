@@ -2,9 +2,6 @@
 
 import * as React from "react"
 import {
-  AudioWaveform,
-  Command,
-  GalleryVerticalEnd,
   SquarePen ,
 } from "lucide-react"
 
@@ -16,7 +13,6 @@ import {
   SidebarFooter,
   SidebarHeader,
   SidebarRail,
-  SidebarMenuButton
 } from "@/components/ui/sidebar"
 
 const data = {

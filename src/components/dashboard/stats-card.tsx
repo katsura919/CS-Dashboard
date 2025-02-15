@@ -1,5 +1,4 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { DollarSign, Users, CreditCard, Activity } from "lucide-react";
 
 interface StatsCardProps {
   title: string;
