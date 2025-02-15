@@ -19,7 +19,6 @@ interface RegisterModalProps {
   onOpenLogin: () => void;
 }
 
-const API_BASE_URL = "http://localhost:5000";
 
 export default function RegisterModal({ isOpen, onClose, onOpenLogin }: RegisterModalProps) {
   const [firstName, setFirstName] = useState("");
