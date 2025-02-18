@@ -18,8 +18,8 @@ import {
 
 const data = {
   user: {
-    name: "shadcn",
-    email: "m@example.com",
+    name: "Admin",
+    email: "admin@example.com",
   },
   navMain: [
     {
@@ -33,7 +33,7 @@ const data = {
           url: "/dashboard",
         },
         {
-          title: "Announcement & Processes",
+          title: "View Records",
           url: "/dashboard/announceprocess",
         },
       ],

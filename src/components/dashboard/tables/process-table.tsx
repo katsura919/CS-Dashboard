@@ -91,6 +91,7 @@ export function ProcessTable() {
 
   return (
     <div className="w-full rounded-md border p-4">
+      <h1 className="text-2xl font-bold mb-4">Processes</h1>
       {/* Search Input */}
       <div className="mb-4">
         <Input

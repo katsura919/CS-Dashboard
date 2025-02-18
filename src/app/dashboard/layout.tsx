@@ -10,7 +10,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   // Mapping for breadcrumb names
   const breadcrumbMap: Record<string, string> = {
-    announceprocess: "Announcements & Processes",
+    announceprocess: "Records",
   };
 
   // Extract the current page from the URL
