@@ -33,7 +33,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   }
 
   if (pathSegments.includes("processdetails") && pathSegments.length > 2) {
-    const processId = pathSegments[pathSegments.length - 1];
+   
 
     breadcrumbItems.push(
       <BreadcrumbItem key="record-details">
@@ -45,7 +45,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   }
 
   if (pathSegments.includes("announcementdetails") && pathSegments.length > 2) {
-    const processId = pathSegments[pathSegments.length - 1];
 
     breadcrumbItems.push(
       <BreadcrumbItem key="announcement-details">
