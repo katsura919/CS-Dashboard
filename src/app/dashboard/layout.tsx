@@ -4,18 +4,57 @@ import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/s
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator, BreadcrumbPage } from "@/components/ui/breadcrumb";
 import { usePathname } from "next/navigation";
 import { ModeToggle } from "@/components/mode-toggle";
+import {Toaster} from "@/components/ui/toaster";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
   // Mapping for breadcrumb names
   const breadcrumbMap: Record<string, string> = {
-    announceprocess: "Records",
+    dashboard: "Home",
+    records: "Records",
+    processdetails: "Process Details",
+    announcementdetails: "Announcement Details",
   };
 
-  // Extract the current page from the URL
-  const currentPage = pathname.split("/").pop() || "";
-  const breadcrumbText = breadcrumbMap[currentPage] || currentPage;
+  // Generate breadcrumb trail
+  const pathSegments = pathname.split("/").filter((segment) => segment);
+  const breadcrumbItems = [];
+
+  if (pathSegments.includes("records")) {
+    breadcrumbItems.push(
+      <BreadcrumbItem key="records">
+        <BreadcrumbLink href="/dashboard/records">
+          {breadcrumbMap["records"]}
+        </BreadcrumbLink>
+      </BreadcrumbItem>,
+      <BreadcrumbSeparator key="separator1" />
+    );
+  }
+
+  if (pathSegments.includes("processdetails") && pathSegments.length > 2) {
+    const processId = pathSegments[pathSegments.length - 1];
+
+    breadcrumbItems.push(
+      <BreadcrumbItem key="record-details">
+        <BreadcrumbPage>
+          {breadcrumbMap["processdetails"]}
+        </BreadcrumbPage>
+      </BreadcrumbItem>
+    );
+  }
+
+  if (pathSegments.includes("announcementdetails") && pathSegments.length > 2) {
+    const processId = pathSegments[pathSegments.length - 1];
+
+    breadcrumbItems.push(
+      <BreadcrumbItem key="announcement-details">
+        <BreadcrumbPage>
+          {breadcrumbMap["announcementdetails"]}
+        </BreadcrumbPage>
+      </BreadcrumbItem>
+    );
+  }
 
   return (
     <SidebarProvider>
@@ -29,14 +68,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <BreadcrumbItem>
                 <BreadcrumbLink href="/dashboard">Home</BreadcrumbLink>
               </BreadcrumbItem>
-              {currentPage && currentPage !== "dashboard" && (
-                <>
-                  <BreadcrumbSeparator />
-                  <BreadcrumbItem>
-                    <BreadcrumbPage className="capitalize">{breadcrumbText}</BreadcrumbPage>
-                  </BreadcrumbItem>
-                </>
-              )}
+              <BreadcrumbSeparator />
+              {breadcrumbItems}
             </BreadcrumbList>
           </Breadcrumb>
           <div className="ml-auto">
@@ -46,6 +79,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
         {/* Page Content Below Breadcrumbs */}
         <main className="mt-4 px-7">{children}</main>
+        <Toaster />
       </SidebarInset>
     </SidebarProvider>
   );

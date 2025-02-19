@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { toast } from "@/hooks/use-toast";
 
 export default function CreateProcess() {
   const [title, setTitle] = useState("");
@@ -32,19 +33,38 @@ export default function CreateProcess() {
       setError("Please provide a title, description, and fill out all steps.");
       return;
     }
-
+  
     try {
       setLoading(true);
       setError(null);
+      
       await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/processes/create`, {
         title,
         description,
         steps,
       });
-      router.push("/dashboard");
+  
+      // Show green success toast
+      toast({
+        title: "Success",
+        description: "Process created successfully!",
+        className: "bg-green-500 text-white",
+      });
+  
+      // Clear input fields after success
+      setTitle("");
+      setDescription("");
+      setSteps([""]);
     } catch (error) {
       console.error("Error creating process:", error);
       setError("Failed to save the process. Please try again.");
+  
+      // Show red error toast
+      toast({
+        title: "Error",
+        description: "Failed to save the process.",
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
     }

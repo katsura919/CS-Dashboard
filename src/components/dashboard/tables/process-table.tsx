@@ -2,6 +2,8 @@
 
 import React, { useEffect, useState, useMemo } from "react";
 import axios from "axios";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   ColumnDef,
   getCoreRowModel,
@@ -31,8 +33,7 @@ export function ProcessTable() {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 5;
-
-
+  const router = useRouter();
   useEffect(() => {
     async function fetchProcesses() {
       try {
@@ -60,22 +61,29 @@ export function ProcessTable() {
 
   const columns: ColumnDef<Process>[] = [
     {
-        accessorKey: "title",
-        header: () => "Title",
-        cell: ({ row }) => {
-          const title = row.getValue("title") as string | undefined;
-          return title ? (title.length > 20 ? `${title.substring(0, 20)}...` : title) : "No title";
-        },
+      accessorKey: "title",
+      header: () => "Title",
+      cell: ({ row }) => {
+        const title = row.getValue("title") as string | undefined;
+        const id = row.original._id;
+        return title ? (
+          <span
+            className="text-blue-500 hover:underline cursor-pointer"
+            onClick={() => router.push(`/dashboard/records/processdetails/${id}`)}
+          >
+            {title.length > 20 ? `${title.substring(0, 20)}...` : title}
+          </span>
+        ) : "No title";
       },
-      
+    },
     {
-        accessorKey: "description",
-        header: () => "Description",
-        cell: ({ row }) => {
-          const description = row.getValue("description") as string | undefined;
-          return description ? (description.length > 50 ? `${description.substring(0, 50)}...` : description) : "No description";
-        },
+      accessorKey: "description",
+      header: () => "Description",
+      cell: ({ row }) => {
+        const description = row.getValue("description") as string | undefined;
+        return description ? (description.length > 50 ? `${description.substring(0, 50)}...` : description) : "No description";
       },
+    },
     {
       accessorKey: "createdAt",
       header: () => "Created At",
@@ -92,6 +100,7 @@ export function ProcessTable() {
   return (
     <div className="w-full rounded-md border p-4">
       <h1 className="text-2xl font-bold mb-4">Processes</h1>
+      
       {/* Search Input */}
       <div className="mb-4">
         <Input
@@ -103,38 +112,37 @@ export function ProcessTable() {
       </div>
 
       <Table className="w-full table-fixed">
-  <TableHeader>
-    {table.getHeaderGroups().map((headerGroup) => (
-      <TableRow key={headerGroup.id}>
-        {headerGroup.headers.map((header) => (
-          <TableHead key={header.id} className="w-1/3">
-            {flexRender(header.column.columnDef.header, header.getContext())}
-          </TableHead>
-        ))}
-      </TableRow>
-    ))}
-  </TableHeader>
-  <TableBody>
-    {table.getRowModel().rows.length ? (
-      table.getRowModel().rows.map((row) => (
-        <TableRow key={row.id}>
-          {row.getVisibleCells().map((cell) => (
-            <TableCell key={cell.id} className="w-1/3">
-              {flexRender(cell.column.columnDef.cell, cell.getContext())}
-            </TableCell>
+        <TableHeader>
+          {table.getHeaderGroups().map((headerGroup) => (
+            <TableRow key={headerGroup.id}>
+              {headerGroup.headers.map((header) => (
+                <TableHead key={header.id} className="w-1/3">
+                  {flexRender(header.column.columnDef.header, header.getContext())}
+                </TableHead>
+              ))}
+            </TableRow>
           ))}
-        </TableRow>
-      ))
-    ) : (
-      <TableRow>
-        <TableCell colSpan={columns.length} className="text-center py-4">
-          No processes found.
-        </TableCell>
-      </TableRow>
-    )}
-  </TableBody>
+        </TableHeader>
+        <TableBody>
+          {table.getRowModel().rows.length ? (
+            table.getRowModel().rows.map((row) => (
+              <TableRow key={row.id}>
+                {row.getVisibleCells().map((cell) => (
+                  <TableCell key={cell.id} className="w-1/3">
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))
+          ) : (
+            <TableRow>
+              <TableCell colSpan={columns.length} className="text-center py-4">
+                No processes found.
+              </TableCell>
+            </TableRow>
+          )}
+        </TableBody>
       </Table>
-
 
       {/* Pagination */}
       {totalPages > 1 && (

@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Loader2 } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
 
 export default function AnnouncementPage() {
   const [title, setTitle] = useState("");
@@ -29,19 +30,36 @@ export default function AnnouncementPage() {
     e.preventDefault();
     setLoading(true);
     setError(null);
-
+  
     try {
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}/api/announcements/create`,
         { title, details, postedBy }
       );
-
+  
       if (response.status === 201) {
-        router.push("/announcements");
+        // Show green success toast
+        toast({
+          title: "Success",
+          description: "Announcement created successfully!",
+          className: "bg-green-500 text-white",
+        });
+  
+        // Clear input fields after success
+        setTitle("");
+        setDetails("");
+        setPostedBy("");
       }
     } catch (err) {
       setError("Failed to create announcement. Please try again.");
       console.error("Error:", err);
+  
+      // Show red error toast
+      toast({
+        title: "Error",
+        description: "Failed to create announcement.",
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
     }

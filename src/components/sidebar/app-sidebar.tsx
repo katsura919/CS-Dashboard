@@ -34,7 +34,7 @@ const data = {
         },
         {
           title: "View Records",
-          url: "/dashboard/announceprocess",
+          url: "/dashboard/records",
         },
       ],
     },

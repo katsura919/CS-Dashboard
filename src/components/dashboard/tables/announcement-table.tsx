@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState, useMemo } from "react";
 import axios from "axios";
+import { useRouter } from "next/navigation";
 import {
   ColumnDef,
   getCoreRowModel,
@@ -32,7 +33,8 @@ export function AnnouncementTable() {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 1;
-
+  const router = useRouter();
+  
   useEffect(() => {
     async function fetchAnnouncements() {
       try {
@@ -64,7 +66,16 @@ export function AnnouncementTable() {
       header: () => "Title",
       cell: ({ row }) => {
         const title = row.getValue("title") as string | undefined;
-        return title ? (title.length > 20 ? `${title.substring(0, 20)}...` : title) : "No title";
+        const id = row.original._id; // Get the ID of the announcement
+  
+        return (
+          <button
+            onClick={() => router.push(`/dashboard/records/announcementdetails/${id}`)}
+            className="text-blue-500 hover:underline"
+          >
+            {title ? (title.length > 20 ? `${title.substring(0, 20)}...` : title) : "No title"}
+          </button>
+        );
       },
     },
     {
