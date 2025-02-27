@@ -5,6 +5,7 @@ import { StatsCard } from "@/components/dashboard/stats-card";
 import { DollarSign, Users, CreditCard, Activity } from "lucide-react";
 
 export default function Page() {
+ 
   return (
     <SidebarProvider>
       <div className="w-full h-screen p-6">

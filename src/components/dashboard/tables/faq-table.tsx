@@ -1,5 +1,4 @@
 "use client";
-
 import React, { useEffect, useState, useMemo } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
@@ -20,67 +19,89 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 
-export type Process = {
+export type FAQ = {
   _id: string;
-  title: string;
-  description: string;
+  question: string;
+  answer: string;
   createdAt: string;
+  tenantId: string;
 };
 
-export function ProcessTable() {
-  const [data, setData] = useState<Process[]>([]);
+export function FAQTable() {
+  const [data, setData] = useState<FAQ[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [error, setError] = useState<string | null>(null);
   const rowsPerPage = 5;
   const router = useRouter();
+
   useEffect(() => {
-    async function fetchProcesses() {
+    async function fetchFAQs() {
       try {
-        const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/processes/get`);
+        // Get tenant data from localStorage
+        const tenantData = localStorage.getItem('tenantData');
+        console.log('Raw tenant data:', tenantData);
+        if (!tenantData) {
+          setError("Tenant data is required.");
+          return;
+        }
+        // Parse the tenant data
+        const parsedTenantData = JSON.parse(tenantData);
+        console.log('Parsed tenant data:', parsedTenantData);
+        // Extract tenantId from parsed data
+        const tenantId = parsedTenantData?.id || parsedTenantData;
+        console.log("Tenant ID: ", tenantId);
+        if (!tenantId) {
+          setError("Tenant ID is required.");
+          return;
+        }
+        const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/faqs/get`, {
+          params: { tenantId: tenantId }
+        });
         setData(response.data);
       } catch (error) {
-        console.error("Error fetching processes:", error);
+        console.error("Error fetching FAQs:", error);
       }
     }
-    fetchProcesses();
+    fetchFAQs();
   }, []);
 
   const filteredData = useMemo(() => {
-    return data.filter((process) =>
-      process.title.toLowerCase().includes(searchQuery.toLowerCase())
+    return data.filter((faq) =>
+      faq.question.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      faq.answer.toLowerCase().includes(searchQuery.toLowerCase())
     );
   }, [searchQuery, data]);
 
   const totalPages = Math.ceil(filteredData.length / rowsPerPage);
-
   const paginatedData = useMemo(() => {
     const startIndex = (currentPage - 1) * rowsPerPage;
     return filteredData.slice(startIndex, startIndex + rowsPerPage);
   }, [currentPage, filteredData]);
 
-  const columns: ColumnDef<Process>[] = [
+  const columns: ColumnDef<FAQ>[] = [
     {
-      accessorKey: "title",
-      header: () => "Title",
+      accessorKey: "question",
+      header: () => "Question",
       cell: ({ row }) => {
-        const title = row.getValue("title") as string | undefined;
+        const question = row.getValue("question") as string | undefined;
         const id = row.original._id;
-        return title ? (
+        return question ? (
           <span
             className="text-blue-500 hover:underline cursor-pointer"
-            onClick={() => router.push(`/dashboard/records/processdetails/${id}`)}
+            onClick={() => router.push(`/dashboard/records/faqdetails/${id}`)}
           >
-            {title.length > 20 ? `${title.substring(0, 20)}...` : title}
+            {question.length > 20 ? `${question.substring(0, 20)}...` : question}
           </span>
-        ) : "No title";
+        ) : "No question";
       },
     },
     {
-      accessorKey: "description",
-      header: () => "Description",
+      accessorKey: "answer",
+      header: () => "Answer",
       cell: ({ row }) => {
-        const description = row.getValue("description") as string | undefined;
-        return description ? (description.length > 50 ? `${description.substring(0, 50)}...` : description) : "No description";
+        const answer = row.getValue("answer") as string | undefined;
+        return answer ? (answer.length > 50 ? `${answer.substring(0, 50)}...` : answer) : "No answer";
       },
     },
     {
@@ -98,13 +119,13 @@ export function ProcessTable() {
 
   return (
     <div className="w-full rounded-md border p-4">
-      <h1 className="text-2xl font-bold mb-4">Processes</h1>
+      <h1 className="text-2xl font-bold mb-4">FAQs</h1>
       
       {/* Search Input */}
       <div className="mb-4">
         <Input
           type="text"
-          placeholder="Search processes..."
+          placeholder="Search FAQs..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
         />
@@ -136,7 +157,7 @@ export function ProcessTable() {
           ) : (
             <TableRow>
               <TableCell colSpan={columns.length} className="text-center py-4">
-                No processes found.
+                No FAQs found.
               </TableCell>
             </TableRow>
           )}
@@ -155,7 +176,10 @@ export function ProcessTable() {
             </PaginationItem>
             {[...Array(totalPages)].map((_, i) => (
               <PaginationItem key={i}>
-                <PaginationLink isActive={currentPage === i + 1} onClick={() => setCurrentPage(i + 1)}>
+                <PaginationLink
+                  isActive={currentPage === i + 1}
+                  onClick={() => setCurrentPage(i + 1)}
+                >
                   {i + 1}
                 </PaginationLink>
               </PaginationItem>

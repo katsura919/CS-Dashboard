@@ -36,6 +36,10 @@ const data = {
           title: "View Records",
           url: "/dashboard/records",
         },
+        {
+          title: "Generate URL",
+          url: "/dashboard/url",
+        },
       ],
     },
     {
@@ -45,12 +49,8 @@ const data = {
       isActive: true,
       items: [
         {
-          title: "Announcement",
-          url: "/dashboard/announcement",
-        },
-        {
-          title: "Process",
-          url: "/dashboard/process",
+          title: "FAQ",
+          url: "/dashboard/faq",
         },
       ],
     },

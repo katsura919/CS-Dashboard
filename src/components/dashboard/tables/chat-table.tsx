@@ -40,7 +40,7 @@ export function ChatTable() {
   const [currentPage, setCurrentPage] = useState(1);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [chatToDelete, setChatToDelete] = useState<string | null>(null);
-  const rowsPerPage = 5;
+  const rowsPerPage = 10;
 
   useEffect(() => {
     fetchChats();
