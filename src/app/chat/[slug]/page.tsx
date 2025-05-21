@@ -1,4 +1,3 @@
-// app/chat/[slug]/page.tsx
 "use client";
 
 import { useState, useEffect, useRef } from "react";
@@ -11,6 +10,14 @@ import axios from "axios";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
 
 interface Message {
   id: string;
@@ -24,13 +31,23 @@ export default function ChatPage() {
   const [newMessage, setNewMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [sessionId, setSessionId] = useState<string | null>(null);
+  const [escalationVisible, setEscalationVisible] = useState(false);
   const chatEndRef = useRef<HTMLDivElement | null>(null);
+
+  const [formData, setFormData] = useState({
+    customerName: "",
+    customerEmail: "",
+    customerPhone: "",
+    concern: "",
+    description: "",
+  });
+
+  const apiEndpoint = `${process.env.NEXT_PUBLIC_API_URL}/ask/chat/${slug}`;
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
-
-  const apiEndpoint = `${process.env.NEXT_PUBLIC_API_URL}/ask/chat/${slug}`;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,16 +56,31 @@ export default function ChatPage() {
     setLoading(true);
     setError(null);
 
-    const userMessage: Message = { id: Date.now().toString(), role: "user", content: newMessage };
-
+    const userMessage: Message = {
+      id: Date.now().toString(),
+      role: "user",
+      content: newMessage,
+    };
     setMessages((prev) => [...prev, userMessage]);
     setNewMessage("");
 
     try {
-      const response = await axios.post(apiEndpoint, {
+      const body: any = {
         query: newMessage,
         history: messages.map(({ role, content }) => ({ role, content })),
-      });
+      };
+
+      if (!sessionId) {
+        body.customerDetails = {
+          name: "Guest",
+          email: "guest@example.com",
+          phoneNumber: "0000000000",
+        };
+      } else {
+        body.sessionId = sessionId;
+      }
+
+      const response = await axios.post(apiEndpoint, body);
 
       const aiMessage: Message = {
         id: `${Date.now()}-response`,
@@ -57,22 +89,90 @@ export default function ChatPage() {
       };
 
       setMessages((prev) => [...prev, aiMessage]);
+
+      if (!sessionId && response.data.sessionId) {
+        setSessionId(response.data.sessionId);
+      }
     } catch (err) {
+      console.error(err);
       setError("Failed to fetch response. Try again.");
     } finally {
       setLoading(false);
     }
   };
 
+  const renderContentWithEscalationLink = (content: string) => {
+    const fullLink = `[Click here to create a ticket.](escalate://now)`;
+
+    if (content.includes(fullLink)) {
+      const [before, after] = content.split(fullLink);
+
+      return (
+        <div className="space-y-2">
+          {before && (
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+              {before.trim()}
+            </ReactMarkdown>
+          )}
+
+          <Button
+            variant="link"
+            className="text-blue-600 underline hover:text-blue-800 p-0 h-auto"
+            onClick={() => setEscalationVisible(true)}
+          >
+            Click here to create a ticket.
+          </Button>
+
+          {after && (
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+              {after.trim()}
+            </ReactMarkdown>
+          )}
+        </div>
+      );
+    }
+
+    return (
+      <ReactMarkdown
+        remarkPlugins={[remarkGfm]}
+        components={{
+          a: ({ href, children }) => {
+            if (href === "escalate://now") {
+              return (
+                <Button
+                  variant="link"
+                  className="text-blue-600 underline hover:text-blue-800 p-0 h-auto"
+                  onClick={() => setEscalationVisible(true)}
+                >
+                  {children}
+                </Button>
+              );
+            }
+            return (
+              <a
+                href={href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-600 underline hover:text-blue-800"
+              >
+                {children}
+              </a>
+            );
+          },
+        }}
+      >
+        {content}
+      </ReactMarkdown>
+    );
+  };
+
   return (
     <div className="flex flex-col h-screen w-full bg-gray-100 dark:bg-gray-900 items-center justify-center p-4">
       <Card className="w-full max-w-2xl h-[80vh] flex flex-col bg-white dark:bg-gray-800 shadow-lg rounded-lg">
-        {/* Header */}
         <div className="p-4 border-b border-gray-200 dark:border-gray-700 text-lg font-semibold text-gray-900 dark:text-gray-100">
-        
+          Ask our assistant
         </div>
 
-        {/* Chat Messages */}
         <ScrollArea className="flex-1 p-4 space-y-3 overflow-y-auto">
           {messages.map((msg) => (
             <div key={msg.id} className={`flex ${msg.role === "ai" ? "justify-start" : "justify-end"}`}>
@@ -83,21 +183,17 @@ export default function ChatPage() {
                     : "bg-blue-500 text-white"
                 }`}
               >
-                {msg.role === "ai" ? (
-                  <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.content}</ReactMarkdown>
-                ) : (
-                  msg.content
-                )}
+                {msg.role === "ai"
+                  ? renderContentWithEscalationLink(msg.content)
+                  : msg.content}
               </div>
             </div>
           ))}
           <div ref={chatEndRef} />
         </ScrollArea>
 
-        {/* Error Message */}
         {error && <p className="text-red-500 text-center text-sm">{error}</p>}
 
-        {/* Input Area */}
         <form onSubmit={handleSubmit} className="p-4 border-t border-gray-200 dark:border-gray-700 flex items-center">
           <Input
             value={newMessage}
@@ -111,6 +207,52 @@ export default function ChatPage() {
           </Button>
         </form>
       </Card>
+
+      <Dialog open={escalationVisible} onOpenChange={setEscalationVisible}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Escalate Your Concern</DialogTitle>
+          </DialogHeader>
+
+          <form className="space-y-3">
+            <Input
+              placeholder="Customer Name"
+              value={formData.customerName}
+              onChange={(e) => setFormData({ ...formData, customerName: e.target.value })}
+            />
+            <Input
+              placeholder="Customer Email"
+              type="email"
+              value={formData.customerEmail}
+              onChange={(e) => setFormData({ ...formData, customerEmail: e.target.value })}
+            />
+            <Input
+              placeholder="Customer Phone (optional)"
+              value={formData.customerPhone}
+              onChange={(e) => setFormData({ ...formData, customerPhone: e.target.value })}
+            />
+            <Input
+              placeholder="Concern (e.g., billing issue)"
+              value={formData.concern}
+              onChange={(e) => setFormData({ ...formData, concern: e.target.value })}
+            />
+            <Textarea
+              placeholder="Additional description (optional)"
+              value={formData.description}
+              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+            />
+          </form>
+
+          <DialogFooter className="mt-4">
+            <Button variant="ghost" onClick={() => setEscalationVisible(false)}>
+              Cancel
+            </Button>
+            <Button onClick={() => alert("Escalation submitted (placeholder)")}>
+              Submit
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

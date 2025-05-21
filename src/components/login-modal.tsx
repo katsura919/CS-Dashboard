@@ -25,38 +25,38 @@ export default function LoginModal({ isOpen, onClose, onOpenRegister }: LoginMod
     setError("");
     setLoading(true);
     try {
-        const { data } = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/tenant/login`, {
-            email,
-            password,
-        });
-        console.log(data)
-        // Save token and tenant data to localStorage
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('tenantData',JSON.stringify(data.tenant));
+      const { data } = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
+        email,
+        password,
+      });
 
-        // Save token for future API requests
-        saveToken(data.token);
+      // Save token and user info
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("user", JSON.stringify(data.user));
 
-        // Update UI with tenant information
-        onClose();
-        router.push("/dashboard");
+      // Save token for authenticated requests
+      saveToken(data.token);
+
+      // Close modal and redirect
+      onClose();
+      router.push("/dashboard");
     } catch (err: unknown) {
-        if (axios.isAxiosError(err)) {
-            setError(err.response?.data?.error || "Invalid email or password");
-        } else {
-            setError("An unexpected error occurred.");
-        }
+      if (axios.isAxiosError(err)) {
+        setError(err.response?.data?.error || "Invalid email or password");
+      } else {
+        setError("An unexpected error occurred.");
+      }
     } finally {
-        setLoading(false);
+      setLoading(false);
     }
-};
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-md rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 shadow-lg p-6 animate-fadeIn">
         <DialogHeader className="text-center">
-          <DialogTitle className="text-2xl font-bold text-white">Tenant Login</DialogTitle>
-          <p className="text-sm text-gray-300 mt-1">Sign in to access your department</p>
+          <DialogTitle className="text-2xl font-bold text-white">Login</DialogTitle>
+          <p className="text-sm text-gray-300 mt-1">Sign in to your account</p>
         </DialogHeader>
         <div className="space-y-4">
           <Input
@@ -82,11 +82,8 @@ export default function LoginModal({ isOpen, onClose, onOpenRegister }: LoginMod
             {loading ? <Loader2 className="animate-spin w-5 h-5" /> : "Login"}
           </Button>
           <div className="text-center text-sm text-gray-300">
-            Don't have an account?{" "}
-            <button
-              className="text-blue-400 hover:underline"
-              onClick={onOpenRegister}
-            >
+            Don&apos;t have an account?{" "}
+            <button className="text-blue-400 hover:underline" onClick={onOpenRegister}>
               Register here
             </button>
           </div>
