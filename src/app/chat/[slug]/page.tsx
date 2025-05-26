@@ -101,70 +101,55 @@ export default function ChatPage() {
     }
   };
 
-  const renderContentWithEscalationLink = (content: string) => {
-    const fullLink = `[Click here to create a ticket.](escalate://now)`;
+const renderContentWithEscalationLink = (content: string) => {
 
-    if (content.includes(fullLink)) {
-      const [before, after] = content.split(fullLink);
+  const replaced = content.replace(/\[([^\]]+)\]\(escalate:\/\/now\)/g, "**@@ESCALATE_LINK@@**");
 
-      return (
-        <div className="space-y-2">
-          {before && (
-            <ReactMarkdown remarkPlugins={[remarkGfm]}>
-              {before.trim()}
-            </ReactMarkdown>
-          )}
-
-          <Button
-            variant="link"
-            className="text-blue-600 underline hover:text-blue-800 p-0 h-auto"
-            onClick={() => setEscalationVisible(true)}
-          >
-            Click here to create a ticket.
-          </Button>
-
-          {after && (
-            <ReactMarkdown remarkPlugins={[remarkGfm]}>
-              {after.trim()}
-            </ReactMarkdown>
-          )}
-        </div>
-      );
-    }
-
-    return (
-      <ReactMarkdown
-        remarkPlugins={[remarkGfm]}
-        components={{
-          a: ({ href, children }) => {
-            if (href === "escalate://now") {
-              return (
-                <Button
-                  variant="link"
-                  className="text-blue-600 underline hover:text-blue-800 p-0 h-auto"
-                  onClick={() => setEscalationVisible(true)}
-                >
-                  {children}
-                </Button>
-              );
-            }
+  return (
+    <ReactMarkdown
+      remarkPlugins={[remarkGfm]}
+      components={{
+        strong: ({ children }) => {
+          if (children?.[0] === "@@ESCALATE_LINK@@") {
             return (
-              <a
-                href={href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-blue-600 underline hover:text-blue-800"
+              <Button
+                variant="link"
+                className="text-blue-600 underline hover:text-blue-800 p-0 h-auto"
+                onClick={() => setEscalationVisible(true)}
               >
-                {children}
-              </a>
+                click here
+              </Button>
             );
-          },
-        }}
-      >
-        {content}
-      </ReactMarkdown>
-    );
-  };
+          }
+          return <strong>{children}</strong>;
+        },
+        // Handle other anchor tags normally
+        a: ({
+          href,
+          children,
+          ...props
+        }: React.AnchorHTMLAttributes<HTMLAnchorElement> & { node?: any }) => {
+          return (
+            <a
+              href={href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-600 underline hover:text-blue-800"
+              {...props}
+            >
+              {children}
+            </a>
+          );
+        },
+      }}
+    >
+      {replaced}
+    </ReactMarkdown>
+  );
+};
+
+
+
 
   return (
     <div className="flex flex-col h-screen w-full bg-gray-100 dark:bg-gray-900 items-center justify-center p-4">
